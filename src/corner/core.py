@@ -57,6 +57,9 @@ def corner_impl(
     use_math_text=False,
     reverse=False,
     labelpad=0.0,
+    ytick1d=False,
+    ylabel1d=None,
+    rotate_tick_labels=True,
     hist_kwargs=None,
     **hist2d_kwargs,
 ):
@@ -297,32 +300,39 @@ def corner_impl(
         else:
             _set_ylim(force_range, new_fig, ax, [0, 1.1 * np.max(n)])
 
-        ax.set_yticklabels([])
         if max_n_ticks == 0:
             ax.xaxis.set_major_locator(NullLocator())
             ax.yaxis.set_major_locator(NullLocator())
         else:
+            ax.yaxis.set_major_locator(NullLocator())
             if axes_scale[i] == "linear":
                 ax.xaxis.set_major_locator(
                     MaxNLocator(max_n_ticks, prune="lower")
                 )
+                if ytick1d:
+                    ax.yaxis.set_major_locator(MaxNLocator(max_n_ticks, prune="lower"))
+                    ax.yaxis.tick_right()
             elif axes_scale[i] == "log":
                 ax.xaxis.set_major_locator(LogLocator(numticks=max_n_ticks))
-            ax.yaxis.set_major_locator(NullLocator())
+                if ytick1d:
+                    ax.yaxis.set_major_locator(LogLocator(numticks=max_n_ticks))
+                    ax.yaxis.tick_right()
 
         if i < K - 1:
             if top_ticks:
                 ax.xaxis.set_ticks_position("top")
-                [l.set_rotation(45) for l in ax.get_xticklabels()]
-                [l.set_rotation(45) for l in ax.get_xticklabels(minor=True)]
+                if rotate_tick_labels:
+                    [l.set_rotation(45) for l in ax.get_xticklabels()]
+                    [l.set_rotation(45) for l in ax.get_xticklabels(minor=True)]
             else:
                 ax.set_xticklabels([])
                 ax.set_xticklabels([], minor=True)
         else:
             if reverse:
                 ax.xaxis.tick_top()
-            [l.set_rotation(45) for l in ax.get_xticklabels()]
-            [l.set_rotation(45) for l in ax.get_xticklabels(minor=True)]
+            if rotate_tick_labels:
+                [l.set_rotation(45) for l in ax.get_xticklabels()]
+                [l.set_rotation(45) for l in ax.get_xticklabels(minor=True)]
             if labels is not None:
                 if reverse:
                     if "labelpad" in label_kwargs.keys():
@@ -348,6 +358,28 @@ def corner_impl(
                 )
             elif axes_scale[i] == "log":
                 ax.xaxis.set_major_formatter(LogFormatterMathtext())
+        
+        ax.xaxis.set_ticks_position("bottom")
+        
+        if ytick1d:
+            if axes_scale[i] == "linear":
+                ax.yaxis.set_major_formatter(
+                    ScalarFormatter(useMathText=use_math_text)
+                )
+                if rotate_tick_labels:
+                    [l.set_rotation(45) for l in ax.get_yticklabels()]
+                    [l.set_rotation(45) for l in ax.get_yticklabels(minor=True)]
+            elif axes_scale[i] == "log":
+                ax.yaxis.set_major_formatter(
+                    LogFormatterMathtext()
+                )
+                if rotate_tick_labels:
+                    [l.set_rotation(45) for l in ax.get_yticklabels()]
+                    [l.set_rotation(45) for l in ax.get_yticklabels(minor=True)]
+                    
+        if ylabel1d:
+            ax.yaxis.set_label_position("right")
+            ax.set_ylabel(ylabel1d)
 
         for j, y in enumerate(xs):
             if np.shape(xs)[0] == 1:
@@ -412,8 +444,9 @@ def corner_impl(
             else:
                 if reverse:
                     ax.xaxis.tick_top()
-                [l.set_rotation(45) for l in ax.get_xticklabels()]
-                [l.set_rotation(45) for l in ax.get_xticklabels(minor=True)]
+                if rotate_tick_labels:
+                    [l.set_rotation(45) for l in ax.get_xticklabels()]
+                    [l.set_rotation(45) for l in ax.get_xticklabels(minor=True)]
                 if labels is not None:
                     ax.set_xlabel(labels[j], **label_kwargs)
                     if reverse:
@@ -435,8 +468,9 @@ def corner_impl(
             else:
                 if reverse:
                     ax.yaxis.tick_right()
-                [l.set_rotation(45) for l in ax.get_yticklabels()]
-                [l.set_rotation(45) for l in ax.get_yticklabels(minor=True)]
+                if rotate_tick_labels:
+                    [l.set_rotation(45) for l in ax.get_yticklabels()]
+                    [l.set_rotation(45) for l in ax.get_yticklabels(minor=True)]
                 if labels is not None:
                     if reverse:
                         ax.set_ylabel(labels[i], rotation=-90, **label_kwargs)
