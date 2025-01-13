@@ -80,6 +80,7 @@ def arviz_corner(
     divergences=False,
     divergences_kwargs=None,
     labeller=None,
+    add_clabels=True,
     **hist2d_kwargs,
 ):
     is_np = False
@@ -167,6 +168,7 @@ def arviz_corner(
         ylabel1d=ylabel1d,
         rotate_tick_labels=rotate_tick_labels,
         hist_kwargs=hist_kwargs,
+        add_clabels=add_clabels,
         **hist2d_kwargs,
     )
 

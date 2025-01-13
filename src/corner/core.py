@@ -61,6 +61,7 @@ def corner_impl(
     ylabel1d=None,
     rotate_tick_labels=True,
     hist_kwargs=None,
+    add_clabels=True,
     **hist2d_kwargs,
 ):
     if quantiles is None:
@@ -413,6 +414,7 @@ def corner_impl(
                 bins=[bins[j], bins[i]],
                 new_fig=new_fig,
                 force_range=force_range,
+                add_clabels=add_clabels,
                 **hist2d_kwargs,
             )
 
@@ -576,6 +578,7 @@ def hist2d(
     pcolor_kwargs=None,
     new_fig=True,
     force_range=False,
+    add_clabels=True,
     **kwargs,
 ):
     """
@@ -831,13 +834,20 @@ def hist2d(
         if contour_kwargs is None:
             contour_kwargs = dict()
         contour_kwargs["colors"] = contour_kwargs.get("colors", color)
-        ax.contour(X2, Y2, H2.T, V, **contour_kwargs)
+        cont = ax.contour(X2, Y2, H2.T, V, **contour_kwargs)
+        if add_clabels:
+            ax.clabel(
+                cont,
+                V,
+                fmt=dict(zip(V, sorted(levels, reverse=True))),
+                fontsize=12,
+                rightside_up=True
+            )
 
     _set_xlim(force_range, new_fig, ax, range[0])
     _set_ylim(force_range, new_fig, ax, range[1])
     ax.set_xscale(axes_scale[0])
     ax.set_yscale(axes_scale[1])
-
 
 def overplot_lines(fig, xs, reverse=False, **kwargs):
     """
